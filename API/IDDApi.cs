@@ -74,9 +74,6 @@ namespace Dippy.DDApi {
         #region ResourceFile
         #endregion
 
-        #region SourceGroup
-        #endregion
-
         #region SourceInfo
         //need paginate and search
         #endregion
@@ -87,9 +84,6 @@ namespace Dippy.DDApi {
 
         #region TagGroup
         //need paginate and search
-        #endregion
-
-        #region TagType
         #endregion
     }
 }

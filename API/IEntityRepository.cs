@@ -10,5 +10,14 @@ namespace Dippy.DDApi {
 
         TEntity Get(long id);
         IEnumerable<TEntity> Get(IEnumerable<long> id);
+
+        IEnumerable<long> OffsetPaginateId(int pageSize, int offset);
+        IEnumerable<long> OffsetPaginateId(int pageSize, int offset, string sqlPageOrder);
+
+        IEnumerable<TEntity> KeyedPaginate(int pageSize, long lastId);
+        IEnumerable<TEntity> KeyedPaginate(int pageSize, long lastId, string sqlPageOrder, string sqlPaginationKey);
+
+        IEnumerable<long> KeyedPaginateId(int pageSize, long lastId);
+        IEnumerable<long> KeyedPaginateId(int pageSize, long lastId, string sqlPageOrder, string sqlPaginationKey);
     }
 }

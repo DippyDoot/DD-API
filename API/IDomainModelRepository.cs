@@ -14,6 +14,12 @@ namespace Dippy.DDApi {
         TDomainModel Get(TDomainModel model);
         IEnumerable<TDomainModel> Get(IEnumerable<TDomainModel> models);
 
+        IEnumerable<TDomainModel> OffsetPaginate(int pageSize, int offset);
+        IEnumerable<TDomainModel> OffsetPaginate(int pageSize, int offset, string sqlPageOrder);
+
+        IEnumerable<TDomainModel> KeyedPaginate(int pageSize, TDomainModel lastKey);
+        IEnumerable<TDomainModel> KeyedPaginate(int pageSize, TDomainModel lastKey, string sqlPageOrder, string sqlPaginationKey);
+
         long Count();
     }
 }
