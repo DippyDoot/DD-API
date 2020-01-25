@@ -91,9 +91,6 @@ namespace Dippy.DDApi.SQLite
             info.SqlGetByKey = string.Format("SELECT * FROM {0} WHERE {1}", info.TableName, keyCondition);
             info.SqlGetLastInserted = string.Format("SELECT * FROM {0} WHERE _rowid_ = (SELECT last_insert_rowid())", info.TableName);
             info.SqlCount = string.Format("SELECT COUNT(*) FROM {0}", info.TableName);
-            info.SqlGetLastInsertedId = string.Format("SELECT * FROM {0} WHERE _rowid_ = (SELECT last_insert_rowid())", info.TableName);
-            info.IdColumnName = primaryKeys[0].columnName;
-            info.IdModelName = primaryKeys[0].modelName;
             info.OrderByKey = orderByKey;
             info.DefaultKeyedPaginationKey = string.Format("({0}) > ({1})", columnNames, modelNames);
 

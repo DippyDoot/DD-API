@@ -13,9 +13,6 @@ namespace Dippy.DDApi.SQLite
         public string SqlGetByKey { get; set; }
         public string SqlGetLastInserted { get; set; }
         public string SqlCount { get; set; }
-        public string SqlGetLastInsertedId { get; set; } //only for auto incremented PKs
-        public string IdColumnName { get; set; }
-        public string IdModelName { get; set; }
         public string OrderByKey { get; set; }
         public string DefaultKeyedPaginationKey { get; set; }
 
