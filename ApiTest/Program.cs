@@ -15,7 +15,7 @@ namespace ApiTest
         {
             var connectionBuilder = new SQLiteConnectionBuilder(@"H:\Documents\Projects\DD-API\DD Test.db");
 
-            var repo = (KeyedRepository<SourceGroup>)RepositoryFactory.GetSourceGroupRepository(connectionBuilder.BuildConnection);
+            var repo = (GenericRepository<SourceGroup>)RepositoryFactory.GetSourceGroupRepository(connectionBuilder.BuildConnection);
 
             var g = new SourceGroup() { Name = "Test Insert" };
             repo.Insert(g, out SourceGroup output);

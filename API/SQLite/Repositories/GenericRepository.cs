@@ -10,7 +10,7 @@ using Dippy.DDApi.Attributes;
 
 namespace Dippy.DDApi.SQLite.Repositories
 {
-    public class KeyedRepository<TEntity> : IDomainModelRepository<TEntity> where TEntity : class
+    public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
         
 
@@ -29,7 +29,7 @@ namespace Dippy.DDApi.SQLite.Repositories
         
         protected Func<SQLiteConnection> DbConnectionFactory { get; }
 
-        public KeyedRepository(Func<SQLiteConnection> dbConnectionFactory, RepoInitInfo info)
+        public GenericRepository(Func<SQLiteConnection> dbConnectionFactory, RepoInitInfo info)
         {
             if (dbConnectionFactory == null)        throw new ArgumentNullException(nameof(dbConnectionFactory));
             if (info == null)                       throw new ArgumentNullException(nameof(info));

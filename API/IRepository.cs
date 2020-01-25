@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Dippy.DDApi {
-    public interface IDomainModelRepository<TDomainModel> where TDomainModel : class {
+    public interface IRepository<TDomainModel> where TDomainModel : class {
         void Insert(TDomainModel model);
         void Insert(IEnumerable<TDomainModel> models);
 

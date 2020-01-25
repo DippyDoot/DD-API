@@ -7,35 +7,35 @@ namespace Dippy.DDApi.SQLite.Repositories
 {
     public static class RepositoryFactory
     {
-        public static IEntityRepository<TagType> GetTagTypeRepository(Func<SQLiteConnection> dbConnectionFactory)
+        public static IRepository<TagType> GetTagTypeRepository(Func<SQLiteConnection> dbConnectionFactory)
         {
             if (dbConnectionFactory == null) throw new ArgumentNullException(nameof(dbConnectionFactory));
 
-            return new EntityRepository<TagType>(dbConnectionFactory, 
+            return new GenericRepository<TagType>(dbConnectionFactory, 
                 RepoInitInfoBuilder.Get(typeof(TagType)));
         }
 
-        public static IEntityRepository<TagGroup> GetTagGroupRepository(Func<SQLiteConnection> dbConnectionFactory)
+        public static IRepository<TagGroup> GetTagGroupRepository(Func<SQLiteConnection> dbConnectionFactory)
         {
             if (dbConnectionFactory == null) throw new ArgumentNullException(nameof(dbConnectionFactory));
 
-            return new EntityRepository<TagGroup>(dbConnectionFactory,
+            return new GenericRepository<TagGroup>(dbConnectionFactory,
                 RepoInitInfoBuilder.Get(typeof(TagGroup)));
         }
 
-        public static IEntityRepository<SourceGroup> GetSourceGroupRepository(Func<SQLiteConnection> dbConnectionFactory)
+        public static IRepository<SourceGroup> GetSourceGroupRepository(Func<SQLiteConnection> dbConnectionFactory)
         {
             if (dbConnectionFactory == null) throw new ArgumentNullException(nameof(dbConnectionFactory));
 
-            return new EntityRepository<SourceGroup>(dbConnectionFactory,
+            return new GenericRepository<SourceGroup>(dbConnectionFactory,
                 RepoInitInfoBuilder.Get(typeof(SourceGroup)));
         }
 
-        public static IEntityRepository<Tag> GetTagRepository(Func<SQLiteConnection> dbConnectionFactory)
+        public static IRepository<Tag> GetTagRepository(Func<SQLiteConnection> dbConnectionFactory)
         {
             if (dbConnectionFactory == null) throw new ArgumentNullException(nameof(dbConnectionFactory));
 
-            return new EntityRepository<Tag>(dbConnectionFactory,
+            return new GenericRepository<Tag>(dbConnectionFactory,
                 RepoInitInfoBuilder.Get(typeof(Tag)));
         }
     }
