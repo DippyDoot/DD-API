@@ -1,12 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using Dapper;
+using ExpressionExtensionSQL.Dapper;
+using Dippy.DDApi.Attributes;
 
 namespace Dippy.DDApi.SQLite.Repositories
 {
-    public class KeyedRepository<TDomainModel> : IDomainModelRepository<TDomainModel> where TDomainModel : class
+    public class KeyedRepository<TEntity> : IDomainModelRepository<TEntity> where TEntity : class
     {
+        
+
         protected string TableName { get; } // MyTable
         protected string DefaultPageOrder { get; } //used in ORDER BY -- "Foo, Bar"
                                                    //used in ORDER BY -- "Foo ASC, Bar DESC"
@@ -17,60 +24,40 @@ namespace Dippy.DDApi.SQLite.Repositories
         protected string SqlUpdateByKey { get; }
         protected string SqlDeleteByKey { get; }
         protected string SqlGetByKey { get; }
+        protected string SqlGetLastInserted { get; }
         protected string SqlCount { get; }
         
         protected Func<SQLiteConnection> DbConnectionFactory { get; }
 
-        public KeyedRepository(Func<SQLiteConnection> dbConnectionFactory, string tableName, 
-            string sqlInsertColumnNames, string sqlInsertValueNames, string sqlUpdate, string sqlKeyCondition,
-            string defaultPageOrder, string defaultKeyedPaginationKey)
+        public KeyedRepository(Func<SQLiteConnection> dbConnectionFactory, RepoInitInfo info)
         {
             if (dbConnectionFactory == null)        throw new ArgumentNullException(nameof(dbConnectionFactory));
-            if (tableName == null)                  throw new ArgumentNullException(nameof(tableName));
-            if (sqlInsertColumnNames == null)       throw new ArgumentNullException(nameof(sqlInsertColumnNames));
-            if (sqlInsertValueNames == null)        throw new ArgumentNullException(nameof(sqlInsertValueNames));
-            if (sqlUpdate == null)                  throw new ArgumentNullException(nameof(sqlUpdate));
-            if (sqlKeyCondition == null)            throw new ArgumentNullException(nameof(sqlKeyCondition));
-            if (defaultPageOrder == null)           throw new ArgumentNullException(nameof(defaultPageOrder));
-            if (defaultKeyedPaginationKey == null)  throw new ArgumentNullException(nameof(defaultKeyedPaginationKey));
-
-            TableName = tableName;
-            DefaultPageOrder = defaultPageOrder;
-            DefaultKeyedPaginationKey = defaultKeyedPaginationKey;
+            if (info == null)                       throw new ArgumentNullException(nameof(info));
 
             DbConnectionFactory = dbConnectionFactory;
-
-            //you can sql inject yourself, if you wanted to
             
+            DefaultPageOrder = info.OrderByKey;
+            DefaultKeyedPaginationKey = info.DefaultKeyedPaginationKey;
 
-            //sqlInsertColumnNames = "Foo"; //order matters
-            //sqlInsertValueNames = "@Foo"; //order matters
-            //sqlInsertColumnNames = "Foo, Bar"; //order matters
-            //sqlInsertValueNames = "@Foo, @Bar"; //order matters
+            TableName = info.TableName;
 
-            //sqlUpdate = "Foo = @Foo";
-            //sqlUpdate = "Foo = @Foo, Bar = @Bar";
-
-            //sqlKeyCondition = "Id1 = @Id1";
-            //sqlKeyCondition = "Id1 = @Id1 AND Id2 = @Id2";
-
-            SqlInsertByKey = string.Format("INSERT INTO {0} ({1}) VALUES ({2});", TableName, sqlInsertColumnNames, sqlInsertValueNames);
-            SqlUpdateByKey = string.Format("UPDATE {0} SET {1} WHERE {2};", TableName, sqlUpdate, sqlKeyCondition);
-            SqlDeleteByKey = string.Format("DELETE FROM {0} WHERE {1};", TableName, sqlKeyCondition);
-            SqlGetByKey = string.Format("SELECT * FROM {0} WHERE {1};", TableName, sqlKeyCondition);
-            SqlCount = string.Format("SELECT COUNT(*) FROM {0};", TableName);
+            SqlInsertByKey = info.SqlInsertByKey;
+            SqlUpdateByKey = info.SqlUpdateByKey;
+            SqlDeleteByKey = info.SqlDeleteByKey;
+            SqlGetByKey = info.SqlGetByKey;
+            SqlGetLastInserted = info.SqlGetLastInserted;
+            SqlCount = info.SqlGetByKey;
         }
 
-
         #region IDomainModelRepository
-        public void Insert(TDomainModel model)
+        public void Insert(TEntity model)
         {
             using (var cnn = GetNewConnection())
             {
                 cnn.Execute(SqlInsertByKey, model);
             }
         }
-        public void Insert(IEnumerable<TDomainModel> models) 
+        public void Insert(TEntity model, out TEntity inserted)
         {
             using (var cnn = GetNewConnection())
             {
@@ -79,7 +66,28 @@ namespace Dippy.DDApi.SQLite.Repositories
                 {
                     try
                     {
-                        foreach (TDomainModel model in models)
+                        cnn.Execute(SqlInsertByKey, model, transaction: transaction);
+                        inserted = cnn.QueryFirst<TEntity>(SqlGetLastInserted, transaction: transaction);
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+        public void Insert(IEnumerable<TEntity> models) 
+        {
+            using (var cnn = GetNewConnection())
+            {
+                cnn.Open();
+                using (var transaction = cnn.BeginTransaction())
+                {
+                    try
+                    {
+                        foreach (TEntity model in models)
                         {
                             cnn.Execute(SqlInsertByKey, model, transaction: transaction);
                         }
@@ -93,15 +101,42 @@ namespace Dippy.DDApi.SQLite.Repositories
                 }
             }
         }
+        public void Insert(IEnumerable<TEntity> models, out IEnumerable<TEntity> inserted)
+        {
+            var output = new List<TEntity>();
 
-        public void Update(TDomainModel model)
+            using (var cnn = GetNewConnection())
+            {
+                cnn.Open();
+                using (var transaction = cnn.BeginTransaction())
+                {
+                    try
+                    {
+                        foreach (TEntity model in models)
+                        {
+                            cnn.Execute(SqlInsertByKey, model, transaction: transaction);
+                            output.Add(cnn.QueryFirst<TEntity>(SqlGetLastInserted, transaction: transaction));
+                        }
+                        transaction.Commit();
+                        inserted = output;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
+        public void Update(TEntity model)
         {
             using (var cnn = GetNewConnection())
             {
                 cnn.Execute(SqlUpdateByKey, model);
             }
         }
-        public void Update(IEnumerable<TDomainModel> models)
+        public void Update(IEnumerable<TEntity> models)
         {
             using (var cnn = GetNewConnection())
             {
@@ -110,7 +145,7 @@ namespace Dippy.DDApi.SQLite.Repositories
                 {
                     try
                     {
-                        foreach (TDomainModel model in models)
+                        foreach (TEntity model in models)
                         {
                             cnn.Execute(SqlUpdateByKey, model, transaction: transaction);
                         }
@@ -125,14 +160,14 @@ namespace Dippy.DDApi.SQLite.Repositories
             }
         }
 
-        public void Delete(TDomainModel model)
+        public void Delete(TEntity model)
         {
             using (var cnn = GetNewConnection())
             {
                 cnn.Execute(SqlDeleteByKey, model);
             }
         }
-        public void Delete(IEnumerable<TDomainModel> models)
+        public void Delete(IEnumerable<TEntity> models)
         {
             using (var cnn = GetNewConnection())
             {
@@ -141,7 +176,7 @@ namespace Dippy.DDApi.SQLite.Repositories
                 {
                     try
                     {
-                        foreach (TDomainModel model in models)
+                        foreach (TEntity model in models)
                         {
                             cnn.Execute(SqlDeleteByKey, model, transaction: transaction);
                         }
@@ -156,17 +191,17 @@ namespace Dippy.DDApi.SQLite.Repositories
             }
         }
 
-        public TDomainModel Get(TDomainModel model)
+        public TEntity Get(TEntity model)
         {
             using (var cnn = GetNewConnection())
             {
-                TDomainModel newModel = cnn.QueryFirst<TDomainModel>(SqlGetByKey, model);
+                TEntity newModel = cnn.QueryFirst<TEntity>(SqlGetByKey, model);
                 return newModel;
             }
         }
-        public IEnumerable<TDomainModel> Get(IEnumerable<TDomainModel> models)
+        public IEnumerable<TEntity> Get(IEnumerable<TEntity> models)
         {
-            var newModels = new List<TDomainModel>();
+            var newModels = new List<TEntity>();
             using (var cnn = GetNewConnection())
             {
                 cnn.Open();
@@ -174,9 +209,9 @@ namespace Dippy.DDApi.SQLite.Repositories
                 {
                     try
                     {
-                        foreach (TDomainModel model in models)
+                        foreach (TEntity model in models)
                         {
-                            newModels.Add(cnn.QueryFirst<TDomainModel>(SqlGetByKey, model, transaction: transaction));
+                            newModels.Add(cnn.QueryFirst<TEntity>(SqlGetByKey, model, transaction: transaction));
                         }
                         transaction.Commit();
                     }
@@ -192,11 +227,11 @@ namespace Dippy.DDApi.SQLite.Repositories
         }
 
 
-        public IEnumerable<TDomainModel> OffsetPaginate(int pageSize, int offset)
+        public IEnumerable<TEntity> OffsetPaginate(int pageSize, int offset)
         {
             return OffsetPaginate(pageSize, offset, DefaultPageOrder);
         }
-        public IEnumerable<TDomainModel> OffsetPaginate(int pageSize, int offset, string sqlPageOrder)
+        public IEnumerable<TEntity> OffsetPaginate(int pageSize, int offset, string sqlPageOrder)
         {
             if (pageSize < 1) throw new ArgumentOutOfRangeException(nameof(pageSize), $"{nameof(pageSize)} should be greater than zero.");
             if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset), $"{nameof(offset)} should be non-negative.");
@@ -207,17 +242,17 @@ namespace Dippy.DDApi.SQLite.Repositories
 
             using (var cnn = GetNewConnection())
             {
-                IEnumerable<TDomainModel> results = cnn.Query<TDomainModel>(sql);
+                IEnumerable<TEntity> results = cnn.Query<TEntity>(sql);
                 return results;
             }
         }
 
-        public IEnumerable<TDomainModel> KeyedPaginate(int pageSize, TDomainModel lastKey)
+        public IEnumerable<TEntity> KeyedPaginate(int pageSize, TEntity lastKey)
         {
             if (lastKey == null) throw new ArgumentNullException(nameof(lastKey));
             return KeyedPaginate(pageSize, lastKey, DefaultPageOrder, DefaultKeyedPaginationKey);
         }
-        public IEnumerable<TDomainModel> KeyedPaginate(int pageSize, TDomainModel lastKey, string sqlPageOrder, string sqlPaginationKey)
+        public IEnumerable<TEntity> KeyedPaginate(int pageSize, TEntity lastKey, string sqlPageOrder, string sqlPaginationKey)
         {
             if (pageSize < 1) throw new ArgumentOutOfRangeException(nameof(pageSize), $"{nameof(pageSize)} should be greater than zero.");
             if (sqlPageOrder == null) throw new ArgumentNullException(nameof(sqlPageOrder));
@@ -229,7 +264,20 @@ namespace Dippy.DDApi.SQLite.Repositories
 
             using (var cnn = GetNewConnection())
             {
-                IEnumerable<TDomainModel> results = cnn.Query<TDomainModel>(sql, lastKey);
+                IEnumerable<TEntity> results = cnn.Query<TEntity>(sql, lastKey);
+                return results;
+            }
+        }
+
+        //faster in most situations than get, but it was allways around 150ms,
+        //which probably means that results may vary in real use cases
+        public IEnumerable<TEntity> Search(Expression<Func<TEntity, bool>> filter)
+        {
+            var sql = $@"SELECT * FROM {TableName} {{where}}";
+
+            using (var cnn = GetNewConnection())
+            {
+                IEnumerable<TEntity> results = cnn.Query<TEntity>(sql,  filter);
                 return results;
             }
         }

@@ -3,7 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Dippy.DDApi.DomainModels</AssemblyName>
-    <RootNamespace>Dippy.DDApi.DomainModel</RootNamespace>
+    <RootNamespace>Dippy.DDApi.DomainModels</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Attrubutes\Attributes.csproj" />
+  </ItemGroup>
 
 </Project>

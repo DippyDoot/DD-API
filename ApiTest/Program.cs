@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq.Expressions;
 using Dippy.DDApi;
 using Dippy.DDApi.SQLite;
 using Dippy.DDApi.SQLite.Repositories;
@@ -13,23 +15,28 @@ namespace ApiTest
         {
             var connectionBuilder = new SQLiteConnectionBuilder(@"H:\Documents\Projects\DD-API\DD Test.db");
 
-            var repo = RepositoryFactory.GetTagRepository(connectionBuilder.BuildConnection);
+            var repo = (KeyedRepository<SourceGroup>)RepositoryFactory.GetSourceGroupRepository(connectionBuilder.BuildConnection);
+
+            var g = new SourceGroup() { Name = "Test Insert" };
+            repo.Insert(g, out SourceGroup output);
+
 
             //IEnumerable<Tag> tags = repo.KeyedPaginate(3, new Tag() { Id = 2});
-            IEnumerable<Tag> tags = repo.KeyedPaginate(3,0);
+            //IEnumerable<Tag> tags = repo.KeyedPaginate(3,0);
 
-            foreach(Tag tag in tags)
-            {
-                DisplayTag(tag);
-                Console.WriteLine("");
-            }
+            //foreach(Tag tag in tags)
+            //{
+            //    DisplayTag(tag);
+            //    Console.WriteLine("");
+            //}
 
 
             //var repo = RepositoryFactory.GetSourceGroupRepository(connectionBuilder.BuildConnection);
 
             //SourceGroup sourceGroup = repo.Get(1);
 
-            //DisplaySourceGroup(sourceGroup);
+            DisplaySourceGroup(g);
+            DisplaySourceGroup(output);
 
             //sourceGroup.Id = 1;
             //sourceGroup.Description = "A newer, bigger waste of time.";

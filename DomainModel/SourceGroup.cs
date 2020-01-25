@@ -1,5 +1,8 @@
-﻿namespace Dippy.DDApi.DomainModels {
+﻿using Dippy.DDApi.Attributes;
+
+namespace Dippy.DDApi.DomainModels {
     public class SourceGroup {
+        [Key]
         public long Id { get; set; }
         public string Name { get; set; }
         public string Url { get; set; }

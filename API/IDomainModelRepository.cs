@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Dippy.DDApi {
     public interface IDomainModelRepository<TDomainModel> where TDomainModel : class {
@@ -21,5 +23,11 @@ namespace Dippy.DDApi {
         IEnumerable<TDomainModel> KeyedPaginate(int pageSize, TDomainModel lastKey, string sqlPageOrder, string sqlPaginationKey);
 
         long Count();
+
+        /// <example>
+        /// Search(p => p.Foo == 1, && p.Bar <= 25)
+        /// </example>
+        IEnumerable<TDomainModel> Search(Expression<Func<TDomainModel, bool>> filter);
+        //IEnumerable<TDomainModel> GetAll();
     }
 }

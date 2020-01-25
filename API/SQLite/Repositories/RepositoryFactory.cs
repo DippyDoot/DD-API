@@ -12,10 +12,7 @@ namespace Dippy.DDApi.SQLite.Repositories
             if (dbConnectionFactory == null) throw new ArgumentNullException(nameof(dbConnectionFactory));
 
             return new EntityRepository<TagType>(dbConnectionFactory, 
-                "TagType", 
-                "Name", 
-                "@Name", 
-                "Name = @Name");
+                RepoInitInfoBuilder.Get(typeof(TagType)));
         }
 
         public static IEntityRepository<TagGroup> GetTagGroupRepository(Func<SQLiteConnection> dbConnectionFactory)
@@ -23,10 +20,7 @@ namespace Dippy.DDApi.SQLite.Repositories
             if (dbConnectionFactory == null) throw new ArgumentNullException(nameof(dbConnectionFactory));
 
             return new EntityRepository<TagGroup>(dbConnectionFactory,
-                "TagGroup", 
-                "Name, TagTypeId", 
-                "@Name, @TagTypeId", 
-                "Name = @Name, TagTypeId = @TagTypeId");
+                RepoInitInfoBuilder.Get(typeof(TagGroup)));
         }
 
         public static IEntityRepository<SourceGroup> GetSourceGroupRepository(Func<SQLiteConnection> dbConnectionFactory)
@@ -34,10 +28,7 @@ namespace Dippy.DDApi.SQLite.Repositories
             if (dbConnectionFactory == null) throw new ArgumentNullException(nameof(dbConnectionFactory));
 
             return new EntityRepository<SourceGroup>(dbConnectionFactory,
-                "SourceGroup",
-                "Name, Url, Description, TagId", 
-                "@Name, @Url, @Description, @TagId",
-                "Name = @Name, Url = @Url, Description = @Description, TagId = @TagId");
+                RepoInitInfoBuilder.Get(typeof(SourceGroup)));
         }
 
         public static IEntityRepository<Tag> GetTagRepository(Func<SQLiteConnection> dbConnectionFactory)
@@ -45,10 +36,7 @@ namespace Dippy.DDApi.SQLite.Repositories
             if (dbConnectionFactory == null) throw new ArgumentNullException(nameof(dbConnectionFactory));
 
             return new EntityRepository<Tag>(dbConnectionFactory,
-                "Tag",
-                "Id, Name, NameCultureInfo, TagTypeId, Description, ShortDescription, ResourceFileId, Rating",
-                "@Id, @Name, @NameCultureInfo, @TagTypeId, @Description, @ShortDescription, @ResourceFileId, @Rating",
-                "Name = @Name, NameCultureInfo = @NameCultureInfo, TagTypeId = @TagTypeId, Description = @Description, ShortDescription = @ShortDescription, ResourceFileId = @ResourceFileId, Rating = @Rating");
+                RepoInitInfoBuilder.Get(typeof(Tag)));
         }
     }
 }

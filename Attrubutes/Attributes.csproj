@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Dippy.DDApi.Attributes</AssemblyName>
+    <RootNamespace>Dippy.DDApi.Attributes</RootNamespace>
+  </PropertyGroup>
+
+</Project>

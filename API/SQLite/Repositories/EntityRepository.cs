@@ -8,24 +8,16 @@ namespace Dippy.DDApi.SQLite.Repositories
     public class EntityRepository<TEntity> : KeyedRepository<TEntity>, IEntityRepository<TEntity> 
         where TEntity : class
     {
-        protected string IdParameterName { get; }
+        protected string IdModelName { get; }
         protected string IdColumnName { get; }
-        protected string SqlGetInsertedId { get; } //only works with auto increment PKs
+        protected string SqlGetLastInsertedId { get; } //only works with auto increment PKs
 
-        public EntityRepository(Func<SQLiteConnection> dbConnectionFactory, string tableName, 
-            string sqlInsertColumnNames, string sqlInsertValueNames, string sqlUpdate, 
-            string defaultPageOrder = "Id", string defaultKeyedPaginationKey = "Id > @Id",
-            string sqlKeyCondition = "Id = @Id", string idParameterName = "Id", string idColumnName = "Id") 
-            : base(dbConnectionFactory, tableName, sqlInsertColumnNames, sqlInsertValueNames, sqlUpdate, 
-                  sqlKeyCondition, defaultPageOrder, defaultKeyedPaginationKey)
+        public EntityRepository(Func<SQLiteConnection> dbConnectionFactory, RepoInitInfo info) : base(dbConnectionFactory, info)
         {
-            if (idParameterName == null)    throw new ArgumentNullException(nameof(idParameterName));
-            if (idColumnName == null)       throw new ArgumentNullException(nameof(idColumnName));
+            IdModelName = info.IdModelName;
+            IdColumnName = info.IdColumnName;
 
-            IdParameterName = idParameterName;
-            IdColumnName = idColumnName;
-
-            SqlGetInsertedId = string.Format("SELECT seq FROM sqlite_sequence WHERE name='{0}';", TableName);
+            SqlGetLastInsertedId = info.SqlGetLastInsertedId;
         }
 
         #region IEntityRepository
@@ -34,7 +26,7 @@ namespace Dippy.DDApi.SQLite.Repositories
             using (var cnn = GetNewConnection())
             {
                 cnn.Execute(SqlInsertByKey, entity);
-                id = cnn.QueryFirst<long>(SqlGetInsertedId);
+                id = cnn.QueryFirst<long>(SqlGetLastInsertedId);
             }
         }
         public void Insert(IEnumerable<TEntity> entities, out IEnumerable<long> ids)
@@ -51,7 +43,7 @@ namespace Dippy.DDApi.SQLite.Repositories
                         foreach (TEntity entity in entities)
                         {
                             cnn.Execute(SqlInsertByKey, entity, transaction: transaction);
-                            newIds.Add(cnn.QueryFirst<long>(SqlGetInsertedId));
+                            newIds.Add(cnn.QueryFirst<long>(SqlGetLastInsertedId, transaction: transaction));
                         }
                         transaction.Commit();
                     }
@@ -70,7 +62,7 @@ namespace Dippy.DDApi.SQLite.Repositories
             using (var cnn = GetNewConnection())
             {
                 var parameters = new DynamicParameters();
-                parameters.Add(IdParameterName, id);
+                parameters.Add(IdModelName, id);
                 cnn.Execute(SqlDeleteByKey, parameters);
             }
         }
@@ -86,7 +78,7 @@ namespace Dippy.DDApi.SQLite.Repositories
                         var parameters = new DynamicParameters();
                         foreach (long id in ids)
                         {
-                            parameters.Add(IdParameterName, id);
+                            parameters.Add(IdModelName, id);
                             cnn.Execute(SqlDeleteByKey, parameters, transaction: transaction);
                         }
                         transaction.Commit();
@@ -105,7 +97,7 @@ namespace Dippy.DDApi.SQLite.Repositories
             using (var cnn = GetNewConnection())
             {
                 var parameters = new DynamicParameters();
-                parameters.Add(IdParameterName, id);
+                parameters.Add(IdModelName, id);
                 TEntity newEntity = cnn.QueryFirst<TEntity>(SqlGetByKey, parameters);
                 return newEntity;
             }
@@ -124,7 +116,7 @@ namespace Dippy.DDApi.SQLite.Repositories
                         var parameters = new DynamicParameters();
                         foreach (long id in ids)
                         {
-                            parameters.Add(IdParameterName, id);
+                            parameters.Add(IdModelName, id);
                             newEntities.Add(cnn.QueryFirst<TEntity>(SqlGetByKey, id, transaction: transaction));
                         }
                         transaction.Commit();
@@ -178,7 +170,7 @@ namespace Dippy.DDApi.SQLite.Repositories
             using (var cnn = GetNewConnection())
             {
                 var parameters = new DynamicParameters();
-                parameters.Add(IdParameterName, lastId);
+                parameters.Add(IdModelName, lastId);
                 IEnumerable<TEntity> results = cnn.Query<TEntity>(sql, parameters);
                 return results;
             }
@@ -199,7 +191,7 @@ namespace Dippy.DDApi.SQLite.Repositories
             using (var cnn = GetNewConnection())
             {
                 var parameters = new DynamicParameters();
-                parameters.Add(IdParameterName, lastId);
+                parameters.Add(IdModelName, lastId);
                 IEnumerable<long> results = cnn.Query<long>(sql, parameters);
                 return results;
             }

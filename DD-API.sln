@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "API\Api.csproj", "{2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entities", "Entities\Entities.csproj", "{88581E38-1B7E-4503-A9AE-7C98EDB35079}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiTest", "ApiTest\ApiTest.csproj", "{D98E6055-3F49-4CC1-90BF-32A218A0969D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiTest", "ApiTest\ApiTest.csproj", "{D98E6055-3F49-4CC1-90BF-32A218A0969D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Attributes", "Attrubutes\Attributes.csproj", "{1DF1DC37-C270-419B-83EB-64806BAB667E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{D98E6055-3F49-4CC1-90BF-32A218A0969D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D98E6055-3F49-4CC1-90BF-32A218A0969D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D98E6055-3F49-4CC1-90BF-32A218A0969D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DF1DC37-C270-419B-83EB-64806BAB667E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DF1DC37-C270-419B-83EB-64806BAB667E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DF1DC37-C270-419B-83EB-64806BAB667E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DF1DC37-C270-419B-83EB-64806BAB667E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
