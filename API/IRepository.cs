@@ -3,31 +3,33 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Dippy.DDApi {
-    public interface IRepository<TDomainModel> where TDomainModel : class {
-        void Insert(TDomainModel model);
-        void Insert(IEnumerable<TDomainModel> models);
+    public interface IRepository<TEntity> where TEntity : class {
+        void Insert(TEntity entity);
+        void Insert(TEntity entity, out TEntity inserted);
+        void Insert(IEnumerable<TEntity> entities);
+        void Insert(IEnumerable<TEntity> entities, out IEnumerable<TEntity> inserted);
 
-        void Update(TDomainModel model);
-        void Update(IEnumerable<TDomainModel> models);
+        void Update(TEntity entity);
+        void Update(IEnumerable<TEntity> entities);
 
-        void Delete(TDomainModel model);
-        void Delete(IEnumerable<TDomainModel> models);
+        void Delete(TEntity entity);
+        void Delete(IEnumerable<TEntity> entities);
 
-        TDomainModel Get(TDomainModel model);
-        IEnumerable<TDomainModel> Get(IEnumerable<TDomainModel> models);
+        TEntity Get(TEntity entity);
+        IEnumerable<TEntity> Get(IEnumerable<TEntity> entities);
 
-        IEnumerable<TDomainModel> OffsetPaginate(int pageSize, int offset);
-        IEnumerable<TDomainModel> OffsetPaginate(int pageSize, int offset, string sqlPageOrder);
+        IEnumerable<TEntity> OffsetPaginate(int pageSize, int offset);
+        IEnumerable<TEntity> OffsetPaginate(int pageSize, int offset, string sqlPageOrder);
 
-        IEnumerable<TDomainModel> KeyedPaginate(int pageSize, TDomainModel lastKey);
-        IEnumerable<TDomainModel> KeyedPaginate(int pageSize, TDomainModel lastKey, string sqlPageOrder, string sqlPaginationKey);
+        IEnumerable<TEntity> KeyedPaginate(int pageSize, TEntity lastKey);
+        IEnumerable<TEntity> KeyedPaginate(int pageSize, TEntity lastKey, string sqlPageOrder, string sqlPaginationKey);
 
         long Count();
 
         /// <example>
         /// Search(p => p.Foo == 1, && p.Bar <= 25)
         /// </example>
-        IEnumerable<TDomainModel> Search(Expression<Func<TDomainModel, bool>> filter);
+        IEnumerable<TEntity> Search(Expression<Func<TEntity, bool>> filter);
         //IEnumerable<TDomainModel> GetAll();
     }
 }

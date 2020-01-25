@@ -50,14 +50,14 @@ namespace Dippy.DDApi.SQLite.Repositories
         }
 
         #region IDomainModelRepository
-        public void Insert(TEntity model)
+        public void Insert(TEntity entity)
         {
             using (var cnn = GetNewConnection())
             {
-                cnn.Execute(SqlInsertByKey, model);
+                cnn.Execute(SqlInsertByKey, entity);
             }
         }
-        public void Insert(TEntity model, out TEntity inserted)
+        public void Insert(TEntity entity, out TEntity inserted)
         {
             using (var cnn = GetNewConnection())
             {
@@ -66,7 +66,7 @@ namespace Dippy.DDApi.SQLite.Repositories
                 {
                     try
                     {
-                        cnn.Execute(SqlInsertByKey, model, transaction: transaction);
+                        cnn.Execute(SqlInsertByKey, entity, transaction: transaction);
                         inserted = cnn.QueryFirst<TEntity>(SqlGetLastInserted, transaction: transaction);
                         transaction.Commit();
                     }
@@ -78,7 +78,7 @@ namespace Dippy.DDApi.SQLite.Repositories
                 }
             }
         }
-        public void Insert(IEnumerable<TEntity> models) 
+        public void Insert(IEnumerable<TEntity> entities) 
         {
             using (var cnn = GetNewConnection())
             {
@@ -87,9 +87,9 @@ namespace Dippy.DDApi.SQLite.Repositories
                 {
                     try
                     {
-                        foreach (TEntity model in models)
+                        foreach (TEntity entity in entities)
                         {
-                            cnn.Execute(SqlInsertByKey, model, transaction: transaction);
+                            cnn.Execute(SqlInsertByKey, entity, transaction: transaction);
                         }
                         transaction.Commit();
                     }
@@ -101,7 +101,7 @@ namespace Dippy.DDApi.SQLite.Repositories
                 }
             }
         }
-        public void Insert(IEnumerable<TEntity> models, out IEnumerable<TEntity> inserted)
+        public void Insert(IEnumerable<TEntity> entities, out IEnumerable<TEntity> inserted)
         {
             var output = new List<TEntity>();
 
@@ -112,9 +112,9 @@ namespace Dippy.DDApi.SQLite.Repositories
                 {
                     try
                     {
-                        foreach (TEntity model in models)
+                        foreach (TEntity entity in entities)
                         {
-                            cnn.Execute(SqlInsertByKey, model, transaction: transaction);
+                            cnn.Execute(SqlInsertByKey, entity, transaction: transaction);
                             output.Add(cnn.QueryFirst<TEntity>(SqlGetLastInserted, transaction: transaction));
                         }
                         transaction.Commit();
@@ -129,14 +129,14 @@ namespace Dippy.DDApi.SQLite.Repositories
             }
         }
 
-        public void Update(TEntity model)
+        public void Update(TEntity entity)
         {
             using (var cnn = GetNewConnection())
             {
-                cnn.Execute(SqlUpdateByKey, model);
+                cnn.Execute(SqlUpdateByKey, entity);
             }
         }
-        public void Update(IEnumerable<TEntity> models)
+        public void Update(IEnumerable<TEntity> entities)
         {
             using (var cnn = GetNewConnection())
             {
@@ -145,9 +145,9 @@ namespace Dippy.DDApi.SQLite.Repositories
                 {
                     try
                     {
-                        foreach (TEntity model in models)
+                        foreach (TEntity entity in entities)
                         {
-                            cnn.Execute(SqlUpdateByKey, model, transaction: transaction);
+                            cnn.Execute(SqlUpdateByKey, entity, transaction: transaction);
                         }
                         transaction.Commit();
                     }
@@ -160,14 +160,14 @@ namespace Dippy.DDApi.SQLite.Repositories
             }
         }
 
-        public void Delete(TEntity model)
+        public void Delete(TEntity entity)
         {
             using (var cnn = GetNewConnection())
             {
-                cnn.Execute(SqlDeleteByKey, model);
+                cnn.Execute(SqlDeleteByKey, entity);
             }
         }
-        public void Delete(IEnumerable<TEntity> models)
+        public void Delete(IEnumerable<TEntity> entities)
         {
             using (var cnn = GetNewConnection())
             {
@@ -176,9 +176,9 @@ namespace Dippy.DDApi.SQLite.Repositories
                 {
                     try
                     {
-                        foreach (TEntity model in models)
+                        foreach (TEntity entity in entities)
                         {
-                            cnn.Execute(SqlDeleteByKey, model, transaction: transaction);
+                            cnn.Execute(SqlDeleteByKey, entity, transaction: transaction);
                         }
                         transaction.Commit();
                     }
@@ -191,15 +191,15 @@ namespace Dippy.DDApi.SQLite.Repositories
             }
         }
 
-        public TEntity Get(TEntity model)
+        public TEntity Get(TEntity entity)
         {
             using (var cnn = GetNewConnection())
             {
-                TEntity newModel = cnn.QueryFirst<TEntity>(SqlGetByKey, model);
+                TEntity newModel = cnn.QueryFirst<TEntity>(SqlGetByKey, entity);
                 return newModel;
             }
         }
-        public IEnumerable<TEntity> Get(IEnumerable<TEntity> models)
+        public IEnumerable<TEntity> Get(IEnumerable<TEntity> entities)
         {
             var newModels = new List<TEntity>();
             using (var cnn = GetNewConnection())
@@ -209,9 +209,9 @@ namespace Dippy.DDApi.SQLite.Repositories
                 {
                     try
                     {
-                        foreach (TEntity model in models)
+                        foreach (TEntity entity in entities)
                         {
-                            newModels.Add(cnn.QueryFirst<TEntity>(SqlGetByKey, model, transaction: transaction));
+                            newModels.Add(cnn.QueryFirst<TEntity>(SqlGetByKey, entity, transaction: transaction));
                         }
                         transaction.Commit();
                     }
